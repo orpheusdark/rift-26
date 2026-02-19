@@ -1,9 +1,8 @@
-fastapi
-uvicorn
-gunicorn
-pandas
-networkx
-numpy
-python-multipart
-
-scipy
+fastapi==0.115.12
+uvicorn==0.34.3
+gunicorn==23.0.0
+pandas==2.2.3
+networkx==3.4.2
+numpy==2.2.6
+python-multipart==0.0.22
+scipy==1.15.3

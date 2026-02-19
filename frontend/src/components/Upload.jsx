@@ -47,6 +47,7 @@ const Upload = ({ onDataReceived }) => {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://rift-26-backend.onrender.com';
       const response = await axios.post(`${backendUrl}/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 120000,
       });
       setStatus('success');
       setStatusMsg(`File uploaded successfully — Analysis in progress…`);
@@ -56,7 +57,13 @@ const Upload = ({ onDataReceived }) => {
       onDataReceived(response.data);
     } catch (err) {
       setStatus('error');
-      setStatusMsg(err.response?.data?.detail || 'Error analysing file. Please try again.');
+      let msg;
+      if (err.code === 'ECONNABORTED') {
+        msg = 'Request timed out — the backend may be starting up. Please try again in a moment.';
+      } else {
+        msg = err.response?.data?.detail || 'Error analysing file. Please try again.';
+      }
+      setStatusMsg(msg);
     } finally {
       setLoading(false);
     }
