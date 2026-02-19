@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   // Falls back to the Render backend when VITE_BACKEND_URL is not set.
   // Override by creating a .env file with VITE_BACKEND_URL=<your-backend-url>.
-  const backendUrl = env.VITE_BACKEND_URL || 'https://rift-26-backend.onrender.com'
+  const backendUrl = env.VITE_BACKEND_URL || 'https://rift-26-j7ex.onrender.com'
 
   return {
     plugins: [react()],

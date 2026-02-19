@@ -20,7 +20,7 @@ The system detects structured financial crimes such as fraud rings, smurfing cha
 # Live Demo 
 
 https://rift-26-frontend.onrender.com/
-https://rift-26-backend.onrender.com/
+https://rift-26-j7ex.onrender.com/
 
 ---
 
