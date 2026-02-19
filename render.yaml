@@ -19,7 +19,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_BACKEND_URL
-        value: https://rift-26-backend.onrender.com
+        value: https://rift-26-j7ex.onrender.com
     routes:
       - type: rewrite
         source: /*
