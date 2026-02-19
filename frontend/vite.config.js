@@ -4,9 +4,9 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  // Falls back to the EC2 backend (same default as .env.example) when VITE_BACKEND_URL is not set.
+  // Falls back to the Render backend when VITE_BACKEND_URL is not set.
   // Override by creating a .env file with VITE_BACKEND_URL=<your-backend-url>.
-  const backendUrl = env.VITE_BACKEND_URL || 'http://3.87.82.38:8000'
+  const backendUrl = env.VITE_BACKEND_URL || 'https://rift-26-backend.onrender.com'
 
   return {
     plugins: [react()],
