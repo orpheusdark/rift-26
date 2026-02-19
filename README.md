@@ -17,17 +17,22 @@ It combines:
 The system detects structured financial crimes such as fraud rings, smurfing chains, shell accounts, and velocity anomalies within transaction networks.
 
 ---
+# Live Demo 
 
-# ⚙️ Backend – Fraud Detection Engine (FastAPI)
-
+https://rift-26-frontend.onrender.com/
 https://rift-26-backend.onrender.com/
 
-## 📂 CSV Processing
+---
+
+# Tech Stack 
+
+## ⚙️ Backend – Fraud Detection Engine (FastAPI)
+### 📂 CSV Processing
 - Parses transaction datasets
 - Builds directed transaction graph
 - Automatic schema validation
 
-## 🕸 Graph-Based Pattern Detection
+### 🕸 Graph-Based Pattern Detection
 
 Detects:
 
@@ -36,7 +41,7 @@ Detects:
 - 🏢 **Shell Accounts** (High out-degree, low in-degree)
 - ⚡ **Velocity Anomalies** (High-frequency transaction bursts)
 
-## 📊 Risk Scoring Engine
+### 📊 Risk Scoring Engine
 Each suspicious cluster is evaluated using:
 
 - Structural connectivity
@@ -45,29 +50,26 @@ Each suspicious cluster is evaluated using:
 - Node centrality metrics
 - Composite risk scoring
 
-# 🌐 Frontend – Interactive Intelligence Dashboard
+ --- 
 
-https://rift-26-frontend.onrender.com/
+## 🌐 Frontend – Interactive Intelligence Dashboard
 
-
-## 📤 CSV Upload Component
+### 📤 CSV Upload Component
 
 - Drag & drop file upload  
 - Real-time processing spinner  
 - Execution time display  
 ---
-## 🕸 Interactive Graph Visualization 
+### 🕸 Interactive Graph Visualization 
 
 - 🔵 **Blue Nodes** → Normal accounts  
 - 🔴 **Red Nodes** → Suspicious accounts  
 - 🔁 Cycle highlights  
 - 🖱 Hover tooltips with account metrics  
 - 🔍 Zoom & pan controls  
-- ⚡ Real-time rendering  
-
----
-
-## 📋 Fraud Rings Table
+- ⚡ Real-time rendering
+- 
+### 📋 Fraud Rings Table
 
 - Sortable columns  
 - Risk score heat indicators  
@@ -77,28 +79,34 @@ https://rift-26-frontend.onrender.com/
 
 ---
 
-## 🧪 Example Fraud Pattern
+# System Architecture
 
-ACC1001 → ACC1002 → ACC1003 → ACC1001
+# Algorithm Approach 
+# Suspicion Score Methodology
+# Installation & Setup
+# Usage Instructions
+- Start backend server
+- Start frontend server
+- Open browser → http://localhost:3000
+- Upload transaction CSV file
+- Click Analyze
+- View:
+  - Interactive network grap
+  - Suspicious accounts
+  - Fraud rings table
+  - Risk scores
+- Export results as JSON
+  
+---
 
-### System Detects:
+# Known Limitations 
+ - No authentication layer implemented.
+ - Performance drop for very large datasets
+---
 
-- Strongly connected component  
-- High internal transaction density  
-- Short time interval  
-- Elevated risk score  
-
-
-## Backend Setup
-
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-## 🏆 Built For
-
-**RIFT 2026 – Money Muling Detection Challenge**
+# Team Members
+- Nirant Chavda
+- Rhythm  Chavda
 
 
 © 2026 RIFT PUNE
