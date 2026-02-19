@@ -2,7 +2,6 @@
 ## 💸 MONEY MULING DETECTION CHALLENGE
 **Graph-Based Financial Crime Detection Engine**
 
----
 
 ## 🧠 Overview
 
@@ -21,7 +20,6 @@ The system detects structured financial crimes such as fraud rings, smurfing cha
 
 https://rift-26-frontend.onrender.com/
 
----
 
 # Tech Stack 
 
@@ -121,8 +119,7 @@ Example: A → **B** → C (B only forwards money)
 ### 📈 Activity Spike (10%)
 Sudden heavy transactions after inactivity → 🚨 Suspicious
 
----
----
+
 
 ##  Final Score Formula
 
@@ -143,14 +140,16 @@ Suspicion Score =
 
 Accounts above the defined threshold are flagged for review.
 
----
+## 🛠 Prerequisites
 
-# Installation & Setup
+Make sure the following are installed:
+
 - Python 3.8 or above  
 - pip (Python package manager)  
-- Git 
+- Git  
 
-Recommended Libraries:
+### Recommended Libraries
+
 - pandas  
 - numpy  
 - networkx  
@@ -158,55 +157,79 @@ Recommended Libraries:
 
 ---
 
-## Clone the Repository
+## 📥 Clone the Repository
 
-If using Git:
+Using Git:
 
-git clone https://github.com/orpheurdark/rift-26.git  
-cd rift-26 
+```bash
+git clone https://github.com/orpheurdark/rift-26.git
+cd rift-26
+````
 
 Or download the ZIP file and extract it.
 
 ---
 
-##  Create Virtual Environment (Recommended)
+## 🐍 Create Virtual Environment (Recommended)
 
-python -m venv venv  
+```bash
+python -m venv venv
+```
 
-Activate:
+Activate the environment:
 
-Windows:
-venv\Scripts\activate  
+**Windows:**
 
-Mac/Linux:
-source venv/bin/activate  
+```bash
+venv\Scripts\activate
+```
 
----
+**Mac/Linux:**
 
-##  Install Dependencies
-
-pip install -r requirements.txt  
-
-Or manually install:
-
-pip install pandas numpy networkx matplotlib  
+```bash
+source venv/bin/activate
+```
 
 ---
 
+## 📦 Install Dependencies
 
-##  Run the Project
+Install via requirements file:
 
-python main.py  
+```bash
+pip install -r requirements.txt
+```
+
+
+---
+
+## ▶️ Run the Project
+
+```bash
+python main.py
+```
 
 The system will:
 
-- Load transactions  
-- Calculate account profiles  
-- Compute suspicion scores  
-- Flag high-risk accounts  
-- Generate output report  
+* Load transaction data
+* Calculate account profiles
+* Compute suspicion scores
+* Flag high-risk accounts
+* Generate output report
 
 ---
+
+## 📁 Output
+
+Results will be saved in the `/output/` folder and include:
+
+* Suspicious accounts report (CSV)
+* Risk score summary
+* Transaction graph visualization
+
+---
+
+
 
 ##  Output Location
 
