@@ -44,7 +44,7 @@ const Upload = ({ onDataReceived }) => {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://rift-26-backend.onrender.com';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://34.229.10.113:8000/';
       const response = await axios.post(`${backendUrl}/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 120000,
