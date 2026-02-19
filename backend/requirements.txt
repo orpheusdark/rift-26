@@ -2,5 +2,6 @@ fastapi
 uvicorn
 pandas
 networkx
+numpy
 python-multipart
 scipy

@@ -8,20 +8,17 @@ const Graph = ({ data }) => {
   useEffect(() => {
     if (!data || !data.graph_edges || !data.suspicious_accounts) return;
 
-    // Extract all unique nodes from edges
     const nodes = new Set();
     data.graph_edges.forEach(edge => {
       nodes.add(edge.source);
       nodes.add(edge.target);
     });
 
-    // Create a map of suspicious accounts for quick lookup
     const suspiciousMap = {};
     data.suspicious_accounts.forEach(account => {
       suspiciousMap[account.account_id] = account;
     });
 
-    // Prepare nodes for cytoscape
     const cyNodes = Array.from(nodes).map(nodeId => {
       const isSuspicious = suspiciousMap[nodeId];
       return {
@@ -34,7 +31,6 @@ const Graph = ({ data }) => {
       };
     });
 
-    // Prepare edges for cytoscape
     const cyEdges = data.graph_edges.map((edge, idx) => ({
       data: {
         id: `e${idx}`,
@@ -44,7 +40,6 @@ const Graph = ({ data }) => {
       }
     }));
 
-    // Initialize Cytoscape
     const cy = cytoscape({
       container: containerRef.current,
       elements: [...cyNodes, ...cyEdges],
@@ -57,30 +52,32 @@ const Graph = ({ data }) => {
             'color': '#fff',
             'text-valign': 'center',
             'text-halign': 'center',
-            'font-size': '10px',
-            'width': '30px',
-            'height': '30px'
+            'font-size': '9px',
+            'width': '28px',
+            'height': '28px',
+            'border-width': '0px'
           }
         },
         {
-          selector: 'node[suspicious]',
+          // Cytoscape boolean attribute selector: matches nodes where 'suspicious' is truthy
+          selector: 'node[?suspicious]',
           style: {
             'background-color': '#ef4444',
             'border-width': '3px',
             'border-color': '#dc2626',
-            'width': '35px',
-            'height': '35px'
+            'width': '34px',
+            'height': '34px'
           }
         },
         {
           selector: 'edge',
           style: {
-            'width': 2,
+            'width': 1.5,
             'line-color': '#94a3b8',
             'target-arrow-color': '#94a3b8',
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
-            'arrow-scale': 1
+            'arrow-scale': 0.8
           }
         }
       ],
@@ -101,61 +98,44 @@ const Graph = ({ data }) => {
       boxSelectionEnabled: false
     });
 
-    // Add hover effects and tooltips
     cy.on('mouseover', 'node', (event) => {
       const node = event.target;
       const accountData = node.data('accountData');
-      
+
       if (accountData) {
-        // Create tooltip
         const tooltip = document.createElement('div');
         tooltip.id = 'cy-tooltip';
-        tooltip.className = 'absolute bg-gray-900 text-white p-3 rounded shadow-lg text-sm z-50';
-        tooltip.style.pointerEvents = 'none';
-        
+        tooltip.style.cssText = 'position:fixed;background:#0f172a;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-size:12px;z-index:9999;pointer-events:none;max-width:220px;';
+
         tooltip.innerHTML = `
-          <div class="font-bold mb-1">Account: ${accountData.account_id}</div>
-          <div>Risk Score: ${accountData.risk_score.toFixed(2)}</div>
+          <div style="font-weight:700;margin-bottom:6px;color:#7dd3fc">${accountData.account_id}</div>
+          <div>Score: <b>${accountData.suspicion_score}</b>/100</div>
           <div>Patterns: ${accountData.detected_patterns.join(', ')}</div>
-          <div>Incoming: $${accountData.flow_metrics.total_incoming.toFixed(2)}</div>
-          <div>Outgoing: $${accountData.flow_metrics.total_outgoing.toFixed(2)}</div>
-          <div>Net Flow: $${accountData.flow_metrics.net_flow.toFixed(2)}</div>
+          ${accountData.ring_id ? `<div>Ring: <b>${accountData.ring_id}</b></div>` : ''}
         `;
-        
+
         document.body.appendChild(tooltip);
-        
-        const updateTooltipPosition = (e) => {
-          tooltip.style.left = `${e.clientX + 10}px`;
-          tooltip.style.top = `${e.clientY + 10}px`;
+
+        const updatePos = (e) => {
+          tooltip.style.left = `${e.clientX + 14}px`;
+          tooltip.style.top = `${e.clientY + 14}px`;
         };
-        
-        updateTooltipPosition(event.originalEvent);
-        
-        const mouseMoveHandler = (e) => updateTooltipPosition(e);
-        document.addEventListener('mousemove', mouseMoveHandler);
-        
+        updatePos(event.originalEvent);
+        const handler = (e) => updatePos(e);
+        document.addEventListener('mousemove', handler);
         node.data('tooltipCleanup', () => {
-          document.removeEventListener('mousemove', mouseMoveHandler);
+          document.removeEventListener('mousemove', handler);
           tooltip.remove();
         });
       }
-      
-      // Highlight node
-      node.style({
-        'border-width': '4px',
-        'border-color': '#fbbf24'
-      });
+
+      node.style({ 'border-width': '4px', 'border-color': '#fbbf24' });
     });
 
     cy.on('mouseout', 'node', (event) => {
       const node = event.target;
       const cleanup = node.data('tooltipCleanup');
-      if (cleanup) {
-        cleanup();
-        node.removeData('tooltipCleanup');
-      }
-      
-      // Reset highlight
+      if (cleanup) { cleanup(); node.removeData('tooltipCleanup'); }
       const isSuspicious = node.data('suspicious');
       node.style({
         'border-width': isSuspicious ? '3px' : '0px',
@@ -163,86 +143,76 @@ const Graph = ({ data }) => {
       });
     });
 
-    // Detect and highlight cycles with a yellow glow effect
+    // Highlight cycle nodes
     const cycles = detectCycles(cy);
     const cycleNodes = new Set();
-    cycles.forEach(cycle => {
-      cycle.forEach(nodeId => cycleNodes.add(nodeId));
-    });
-    
+    cycles.forEach(cycle => cycle.forEach(nodeId => cycleNodes.add(nodeId)));
     cycleNodes.forEach(nodeId => {
       const node = cy.getElementById(nodeId);
       if (node.length > 0 && !node.data('suspicious')) {
-        // Only apply yellow border to cycle nodes that are not already marked as suspicious
-        node.style({
-          'border-width': '4px',
-          'border-color': '#fbbf24',
-          'border-style': 'double'
-        });
+        node.style({ 'border-width': '3px', 'border-color': '#f59e0b', 'border-style': 'solid' });
       }
     });
 
     cyRef.current = cy;
-
-    return () => {
-      if (cyRef.current) {
-        cyRef.current.destroy();
-      }
-    };
+    return () => { if (cyRef.current) cyRef.current.destroy(); };
   }, [data]);
 
-  // Simple cycle detection for visualization
   const detectCycles = (cy) => {
     const cycles = [];
     const visited = new Set();
     const recursionStack = new Set();
-
     const dfs = (nodeId, path) => {
       visited.add(nodeId);
       recursionStack.add(nodeId);
       path.push(nodeId);
-
       const node = cy.getElementById(nodeId);
       const outgoers = node.outgoers('node');
-
       for (let i = 0; i < outgoers.length; i++) {
         const neighbor = outgoers[i].id();
-        
-        if (!visited.has(neighbor)) {
-          dfs(neighbor, [...path]);
-        } else if (recursionStack.has(neighbor)) {
-          // Found a cycle
+        if (!visited.has(neighbor)) dfs(neighbor, [...path]);
+        else if (recursionStack.has(neighbor)) {
           const cycleStart = path.indexOf(neighbor);
-          if (cycleStart !== -1) {
-            cycles.push(path.slice(cycleStart));
-          }
+          if (cycleStart !== -1) cycles.push(path.slice(cycleStart));
         }
       }
-
       recursionStack.delete(nodeId);
     };
-
-    cy.nodes().forEach(node => {
-      if (!visited.has(node.id())) {
-        dfs(node.id(), []);
-      }
-    });
-
+    cy.nodes().forEach(node => { if (!visited.has(node.id())) dfs(node.id(), []); });
     return cycles;
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Graph Visualization</h2>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-semibold text-gray-800">Fraud Network Graph</h2>
+        <div className="flex items-center gap-4 text-xs text-gray-500">
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
+            Normal
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-red-500 inline-block border-2 border-red-700" />
+            Suspicious
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-blue-400 inline-block border-2 border-yellow-500" />
+            In Cycle
+          </span>
+        </div>
+      </div>
       {data && data.graph_edges && data.graph_edges.length > 0 ? (
         <div
           ref={containerRef}
-          className="border border-gray-300 rounded"
-          style={{ width: '100%', height: '500px' }}
+          className="border border-gray-100 rounded-xl bg-slate-50"
+          style={{ width: '100%', height: '460px' }}
         />
       ) : (
-        <div className="border border-gray-300 rounded p-8 text-center text-gray-500" style={{ height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          Upload a CSV file to visualize the transaction graph
+        <div
+          className="border border-gray-100 rounded-xl bg-slate-50 flex items-center justify-center text-gray-400 text-sm"
+          style={{ height: '460px' }}
+        >
+          Upload a CSV file to visualise the transaction network
         </div>
       )}
     </div>

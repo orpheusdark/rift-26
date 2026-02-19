@@ -5,17 +5,14 @@ const Upload = ({ onDataReceived }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [processingTime, setProcessingTime] = useState(null);
-  const [error, setError] = useState(null);
+  const [status, setStatus] = useState(null); // 'success' | 'error'
+  const [statusMsg, setStatusMsg] = useState('');
 
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+    if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true);
+    else if (e.type === 'dragleave') setDragActive(false);
   };
 
   const handleDrop = (e) => {
@@ -24,6 +21,7 @@ const Upload = ({ onDataReceived }) => {
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setFile(e.dataTransfer.files[0]);
+      setStatus(null);
     }
   };
 
@@ -31,89 +29,77 @@ const Upload = ({ onDataReceived }) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setStatus(null);
     }
   };
 
   const handleUpload = async () => {
     if (!file) {
-      setError('Please select a file first');
+      setStatus('error');
+      setStatusMsg('Please select a CSV file first.');
       return;
     }
-
     setLoading(true);
-    setError(null);
-    setProcessingTime(null);
-
+    setStatus(null);
     const formData = new FormData();
     formData.append('file', file);
-
     try {
       const response = await axios.post('http://localhost:8000/analyze', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-      
-      setProcessingTime(response.data.summary.processing_time_seconds);
+      setStatus('success');
+      setStatusMsg(`File uploaded successfully — Analysis in progress…`);
+      setTimeout(() => {
+        setStatusMsg(`Analysis complete in ${response.data.summary.processing_time_seconds}s`);
+      }, 500);
       onDataReceived(response.data);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error analyzing file. Please try again.');
-      console.error('Error uploading file:', err);
+      setStatus('error');
+      setStatusMsg(err.response?.data?.detail || 'Error analysing file. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">CSV Upload</h2>
-      
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        <h2 className="text-base font-semibold text-gray-800">Upload Transaction CSV</h2>
+      </div>
+
       <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-          dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
+          dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-400 hover:bg-slate-50'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
-        <input
-          type="file"
-          accept=".csv"
-          onChange={handleChange}
-          className="hidden"
-          id="file-upload"
-        />
-        
-        <label
-          htmlFor="file-upload"
-          className="cursor-pointer"
-        >
-          <div className="text-gray-600">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              stroke="currentColor"
-              fill="none"
-              viewBox="0 0 48 48"
-              aria-hidden="true"
-            >
-              <path
-                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <p className="mt-2 text-sm">
-              <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
-            </p>
-            <p className="text-xs text-gray-500">CSV files only</p>
-          </div>
+        <input type="file" accept=".csv" onChange={handleChange} className="hidden" id="file-upload" />
+        <label htmlFor="file-upload" className="cursor-pointer">
+          <svg className="mx-auto h-10 w-10 text-gray-300 mb-3" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+            <path
+              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <p className="text-sm text-gray-600">
+            <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
+          </p>
+          <p className="text-xs text-gray-400 mt-1">CSV files only (transaction_id, sender_id, receiver_id, amount, timestamp)</p>
         </label>
-        
         {file && (
-          <div className="mt-4 text-sm text-gray-700">
-            Selected: <span className="font-semibold">{file.name}</span>
+          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg text-sm text-blue-700 font-medium">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            {file.name}
           </div>
         )}
       </div>
@@ -121,30 +107,39 @@ const Upload = ({ onDataReceived }) => {
       <button
         onClick={handleUpload}
         disabled={loading || !file}
-        className={`mt-4 w-full py-2 px-4 rounded-lg font-semibold text-white transition-colors ${
+        className={`mt-4 w-full py-2.5 px-4 rounded-xl font-semibold text-sm text-white transition-all shadow-sm ${
           loading || !file
-            ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-blue-600 hover:bg-blue-700'
+            ? 'bg-gray-300 cursor-not-allowed'
+            : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 hover:shadow-md'
         }`}
       >
-        {loading ? 'Analyzing...' : 'Upload and Analyze'}
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            Analysing…
+          </span>
+        ) : (
+        'Upload & Analyse'
+        )}
       </button>
 
-      {loading && (
-        <div className="mt-4 flex justify-center">
-          <div className="spinner"></div>
+      {status === 'success' && (
+        <div className="mt-3 flex items-center gap-2 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          {statusMsg}
         </div>
       )}
-
-      {error && (
-        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      {processingTime && (
-        <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-          Processing completed in {processingTime} seconds
+      {status === 'error' && (
+        <div className="mt-3 flex items-center gap-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          {statusMsg}
         </div>
       )}
     </div>
