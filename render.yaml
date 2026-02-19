@@ -18,7 +18,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_BACKEND_URL
-        value: http://3.87.82.38:8000
+        value: http://54.226.93.233:8000
     routes:
       - type: rewrite
         source: /*
