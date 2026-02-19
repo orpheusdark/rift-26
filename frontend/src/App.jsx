@@ -12,6 +12,17 @@ function App() {
   const [analysisData, setAnalysisData] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [highlightedIds, setHighlightedIds] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleDarkMode = () => {
+    const next = !darkMode;
+    setDarkMode(next);
+    if (next) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const handleDataReceived = (data) => {
     setAnalysisData(data);
@@ -85,8 +96,8 @@ function App() {
         );
       case 'reports':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-base font-semibold text-gray-800 mb-4">Reports</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Reports</h2>
             <div className="flex flex-col gap-3 max-w-xs">
               <button
                 onClick={handleDownloadJSON}
@@ -147,35 +158,37 @@ function App() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 font-sans">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
       <Sidebar activeSection={activeSection} onNavigate={setActiveSection} />
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-20">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-20">
           <div>
-            <h1 className="text-base font-bold text-gray-900 leading-tight">
+            <h1 className="text-base font-bold text-gray-900 dark:text-gray-100 leading-tight">
               Financial Forensics Dashboard
             </h1>
-            <p className="text-xs text-gray-400 mt-0.5">Money Mule Detection &amp; Financial Forensics System</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Money Mule Detection &amp; Financial Forensics System</p>
           </div>
           <div className="flex items-center gap-3">
             {/* Notification */}
             <Notification data={analysisData} onHighlight={handleHighlight} />
-            {/* Settings */}
-            <button className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+            {/* Settings / Dark mode toggle */}
+            <button
+              onClick={toggleDarkMode}
+              title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors"
+            >
+              {darkMode ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
             </button>
-            {/* User profile */}
-            <div className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm cursor-pointer">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              Nirant Chavda
-            </div>
           </div>
         </header>
 
@@ -185,8 +198,8 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-gray-100 px-6 py-3 flex items-center justify-between">
-          <p className="text-xs text-gray-400">FlowLock &copy; 2026 — Team DeadLock</p>
+        <footer className="bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 px-6 py-3 flex items-center justify-between">
+          <p className="text-xs text-gray-400 dark:text-gray-500">FlowLock &copy; 2026 — Team DeadLock</p>
           <div className="flex gap-3">
             <button
               onClick={handleDownloadJSON}

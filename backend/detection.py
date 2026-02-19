@@ -50,20 +50,97 @@ def compute_flow_metrics(transactions):
     return metrics
 
 
-def detect_cycles(graph, max_cycle_length=6):
+def detect_cycles(graph, min_cycle_length=3, max_cycle_length=5):
     cycles = list(nx.simple_cycles(graph))
-    return [c for c in cycles if len(c) <= max_cycle_length]
+    return [c for c in cycles if min_cycle_length <= len(c) <= max_cycle_length]
 
 
-def detect_smurfing(transactions, threshold=5):
-    sender_counts = defaultdict(int)
+def detect_smurfing(transactions, fan_threshold=10, time_window_hours=72):
+    """Detect fan-in (aggregators) and fan-out (dispersers) smurfing patterns.
+
+    Fan-in: 10+ unique senders → 1 receiver (aggregation).
+    Fan-out: 1 sender → 10+ unique receivers (dispersal).
+    Temporal analysis: also checks within a 72-hour rolling window.
+
+    Returns:
+        dict with keys 'fan_in' (list of aggregator accounts) and
+        'fan_out' (list of disperser accounts).
+    """
+    receiver_senders = defaultdict(set)
+    sender_receivers = defaultdict(set)
+    tx_by_receiver = defaultdict(list)
+    tx_by_sender = defaultdict(list)
+
     for tx in transactions:
-        sender_counts[tx["sender_id"]] += 1
+        receiver_senders[tx["receiver_id"]].add(tx["sender_id"])
+        sender_receivers[tx["sender_id"]].add(tx["receiver_id"])
+        tx_by_receiver[tx["receiver_id"]].append(tx)
+        tx_by_sender[tx["sender_id"]].append(tx)
 
-    return [s for s, c in sender_counts.items() if c >= threshold]
+    fan_in = set()
+    fan_out = set()
+
+    # Global fan-in / fan-out (across all time)
+    for acc, senders in receiver_senders.items():
+        if len(senders) >= fan_threshold:
+            fan_in.add(acc)
+    for acc, receivers in sender_receivers.items():
+        if len(receivers) >= fan_threshold:
+            fan_out.add(acc)
+
+    window = timedelta(hours=time_window_hours)
+
+    # Temporal fan-in within rolling 72-hour window
+    for receiver, txs in tx_by_receiver.items():
+        if receiver in fan_in:
+            continue
+        txs_sorted = sorted(txs, key=lambda x: x["timestamp"])
+        start_idx = 0
+        sender_counts = {}
+        for tx in txs_sorted:
+            while txs_sorted[start_idx]["timestamp"] < tx["timestamp"] - window:
+                old = txs_sorted[start_idx]["sender_id"]
+                sender_counts[old] -= 1
+                if sender_counts[old] == 0:
+                    del sender_counts[old]
+                start_idx += 1
+            sid = tx["sender_id"]
+            sender_counts[sid] = sender_counts.get(sid, 0) + 1
+            if len(sender_counts) >= fan_threshold:
+                fan_in.add(receiver)
+                break
+
+    # Temporal fan-out within rolling 72-hour window
+    for sender, txs in tx_by_sender.items():
+        if sender in fan_out:
+            continue
+        txs_sorted = sorted(txs, key=lambda x: x["timestamp"])
+        start_idx = 0
+        receiver_counts = {}
+        for tx in txs_sorted:
+            while txs_sorted[start_idx]["timestamp"] < tx["timestamp"] - window:
+                old = txs_sorted[start_idx]["receiver_id"]
+                receiver_counts[old] -= 1
+                if receiver_counts[old] == 0:
+                    del receiver_counts[old]
+                start_idx += 1
+            rid = tx["receiver_id"]
+            receiver_counts[rid] = receiver_counts.get(rid, 0) + 1
+            if len(receiver_counts) >= fan_threshold:
+                fan_out.add(sender)
+                break
+
+    return {"fan_in": list(fan_in), "fan_out": list(fan_out)}
 
 
-def detect_shell_accounts(transactions, min_transactions=3):
+def detect_shell_accounts(transactions, max_transactions=3):
+    """Detect shell (pass-through) accounts.
+
+    Shell accounts are intermediate nodes that have BOTH incoming and outgoing
+    transactions but very few total transactions (2–3), characteristic of
+    layered shell networks where money passes through before reaching its
+    final destination.
+    """
     incoming = defaultdict(int)
     outgoing = defaultdict(int)
 
@@ -75,16 +152,14 @@ def detect_shell_accounts(transactions, min_transactions=3):
 
     for acc in set(list(incoming.keys()) + list(outgoing.keys())):
         total = incoming[acc] + outgoing[acc]
-
-        if total <= min_transactions and (
-            incoming[acc] == 0 or outgoing[acc] == 0
-        ):
+        # Shell: BOTH directions present, very low total transaction count
+        if total <= max_transactions and incoming[acc] > 0 and outgoing[acc] > 0:
             shells.append(acc)
 
     return shells
 
 
-def detect_high_velocity(transactions, window_minutes=10, threshold=4):
+def detect_high_velocity(transactions, window_hours=72, threshold=4):
     tx_by_sender = defaultdict(list)
 
     for tx in transactions:
@@ -98,9 +173,9 @@ def detect_high_velocity(transactions, window_minutes=10, threshold=4):
         start_idx = 0
         for end_idx in range(len(timestamps)):
             # Shrink window from the left if the time difference exceeds the window
-            while timestamps[end_idx] - timestamps[start_idx] > timedelta(minutes=window_minutes):
+            while timestamps[end_idx] - timestamps[start_idx] > timedelta(hours=window_hours):
                 start_idx += 1
-            
+
             # Check if the count of transactions in the current window meets the threshold
             if end_idx - start_idx + 1 >= threshold:
                 suspicious.append(sender)

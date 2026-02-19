@@ -15,9 +15,9 @@ const Table = ({ data, onHighlight }) => {
 
   if (!data || !data.fraud_rings || data.fraud_rings.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-base font-semibold text-gray-800 mb-3">Fraud Ring Summary</h2>
-        <div className="text-center text-gray-400 py-10 text-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-3">Fraud Ring Summary</h2>
+        <div className="text-center text-gray-400 dark:text-gray-500 py-10 text-sm">
           No fraud rings detected. Upload a CSV file to analyse transactions.
         </div>
       </div>
@@ -81,9 +81,9 @@ const Table = ({ data, onHighlight }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-base font-semibold text-gray-800">Fraud Ring Summary</h2>
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">Fraud Ring Summary</h2>
         <button
           onClick={handleDownload}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-lg text-sm font-semibold shadow-sm transition-all"
@@ -95,10 +95,10 @@ const Table = ({ data, onHighlight }) => {
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-100">
+      <div className="overflow-x-auto rounded-lg border border-gray-100 dark:border-gray-700">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="bg-slate-800 text-slate-200 text-xs uppercase tracking-wider">
+            <tr className="bg-slate-800 dark:bg-slate-900 text-slate-200 text-xs uppercase tracking-wider">
               {[
                 { key: 'ring_id', label: 'Ring ID' },
                 { key: 'pattern_type', label: 'Pattern Type' },
@@ -118,16 +118,16 @@ const Table = ({ data, onHighlight }) => {
               <th className="px-4 py-3 text-left font-semibold">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
             {sortedRings.map((ring, idx) => (
-              <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                <td className="px-4 py-3 font-mono font-semibold text-purple-700">{ring.ring_id}</td>
+              <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-gray-700/40 transition-colors">
+                <td className="px-4 py-3 font-mono font-semibold text-purple-700 dark:text-purple-400">{ring.ring_id}</td>
                 <td className="px-4 py-3">
-                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300">
                     {ring.pattern_type}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-700 font-semibold">{ring.member_accounts.length}</td>
+                <td className="px-4 py-3 text-gray-700 dark:text-gray-300 font-semibold">{ring.member_accounts.length}</td>
                 <td className="px-4 py-3">
                   {typeof ring.risk_score === 'number' ? (
                     <span className={`font-semibold ${ring.risk_score >= 80 ? 'text-red-600' : ring.risk_score >= 60 ? 'text-orange-600' : ring.risk_score >= 40 ? 'text-yellow-600' : 'text-green-600'}`}>
@@ -135,7 +135,7 @@ const Table = ({ data, onHighlight }) => {
                     </span>
                   ) : '—'}
                 </td>
-                <td className="px-4 py-3 text-gray-500 text-xs max-w-xs truncate">
+                <td className="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs max-w-xs truncate">
                   {ring.member_accounts.join(', ')}
                 </td>
                 <td className="px-4 py-3">
@@ -143,7 +143,7 @@ const Table = ({ data, onHighlight }) => {
                     <button
                       onClick={() => handleCopyIds(ring)}
                       title="Copy member account IDs to clipboard"
-                      className="flex items-center gap-1 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition-colors"
+                      className="flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-slate-700 dark:text-slate-200 rounded text-xs font-medium transition-colors"
                     >
                       {copiedRing === ring.ring_id ? (
                         <>

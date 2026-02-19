@@ -37,7 +37,7 @@ const txActivityData = (graphEdges) => {
 const Charts = ({ data }) => {
   if (!data) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-center h-72 text-gray-400 text-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center justify-center h-72 text-gray-400 dark:text-gray-500 text-sm">
         Upload a CSV file to view analytics charts
       </div>
     );
@@ -49,8 +49,8 @@ const Charts = ({ data }) => {
   return (
     <div className="flex flex-col gap-4">
       {/* Risk Score Distribution */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">Risk Score Distribution</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Risk Score Distribution</h3>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={riskData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -69,7 +69,7 @@ const Charts = ({ data }) => {
         </ResponsiveContainer>
         <div className="flex gap-3 mt-2 flex-wrap">
           {riskData.map((b) => (
-            <span key={b.range} className="flex items-center gap-1 text-xs text-gray-500">
+            <span key={b.range} className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <span className="inline-block w-3 h-3 rounded-sm" style={{ background: bucketColor(b.range) }} />
               {b.range}
             </span>
@@ -78,8 +78,8 @@ const Charts = ({ data }) => {
       </div>
 
       {/* Transaction Activity */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">Top Account Transaction Activity</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Top Account Transaction Activity</h3>
         <ResponsiveContainer width="100%" height={180}>
           <LineChart data={activityData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />

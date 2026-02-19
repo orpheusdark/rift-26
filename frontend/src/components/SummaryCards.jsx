@@ -55,14 +55,14 @@ const SummaryCards = ({ summary }) => {
       {cards.map((card, i) => (
         <div
           key={i}
-          className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
         >
           <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center text-white shadow`}>
             {card.icon}
           </div>
           <div>
-            <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-            <p className="text-xs text-gray-500 mt-0.5 leading-tight">{card.label}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{card.value}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">{card.label}</p>
           </div>
         </div>
       ))}

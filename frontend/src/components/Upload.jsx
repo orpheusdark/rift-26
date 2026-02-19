@@ -63,17 +63,17 @@ const Upload = ({ onDataReceived }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
       <div className="flex items-center gap-2 mb-4">
         <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
         </svg>
-        <h2 className="text-base font-semibold text-gray-800">Upload Transaction CSV</h2>
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">Upload Transaction CSV</h2>
       </div>
 
       <div
         className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
-          dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-400 hover:bg-slate-50'
+          dragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-blue-400 hover:bg-slate-50 dark:hover:bg-gray-700/40'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -82,7 +82,7 @@ const Upload = ({ onDataReceived }) => {
       >
         <input type="file" accept=".csv" onChange={handleChange} className="hidden" id="file-upload" />
         <label htmlFor="file-upload" className="cursor-pointer">
-          <svg className="mx-auto h-10 w-10 text-gray-300 mb-3" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+          <svg className="mx-auto h-10 w-10 text-gray-300 dark:text-gray-500 mb-3" stroke="currentColor" fill="none" viewBox="0 0 48 48">
             <path
               d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
               strokeWidth={2}
@@ -90,13 +90,13 @@ const Upload = ({ onDataReceived }) => {
               strokeLinejoin="round"
             />
           </svg>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
           </p>
-          <p className="text-xs text-gray-400 mt-1">CSV files only (transaction_id, sender_id, receiver_id, amount, timestamp)</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">CSV files only (transaction_id, sender_id, receiver_id, amount, timestamp)</p>
         </label>
         {file && (
-          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg text-sm text-blue-700 font-medium">
+          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-sm text-blue-700 dark:text-blue-300 font-medium">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>

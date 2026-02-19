@@ -15,9 +15,10 @@ const rowBg = (score) => {
 };
 
 const patternExplanations = {
-  smurfing: 'Smurfing / fan-out pattern: account disperses funds to many receivers to evade reporting thresholds.',
-  shell_account: 'Shell account behaviour: low transaction count with one-directional flow (pass-through node).',
-  high_velocity: 'High-velocity transactions: many transactions in a short time window — rapid layering.',
+  fan_in: 'Fan-in (aggregator): 10+ unique senders deposit into this account within a 72-hour window — classic smurfing aggregation.',
+  fan_out: 'Fan-out (disperser): this account disperses funds to 10+ unique receivers — rapid layering to avoid reporting thresholds.',
+  shell_account: 'Shell account: low transaction count (≤3) with both incoming and outgoing flow — typical pass-through layering node.',
+  high_velocity: 'High-velocity transactions: many transactions within a 72-hour window — rapid fund movement.',
   amount_anomaly: 'Unusual transaction amounts detected relative to the dataset average (statistical outlier).',
 };
 
@@ -31,9 +32,9 @@ const SuspiciousTable = ({ data, onHighlight }) => {
 
   if (accounts.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-base font-semibold text-gray-800 mb-3">Suspicious Accounts</h2>
-        <div className="text-center text-gray-400 py-10 text-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-3">Suspicious Accounts</h2>
+        <div className="text-center text-gray-400 dark:text-gray-500 py-10 text-sm">
           No suspicious accounts detected. Upload a CSV file to begin analysis.
         </div>
       </div>
@@ -43,13 +44,13 @@ const SuspiciousTable = ({ data, onHighlight }) => {
   const selectedAccount = selected != null ? accounts.find((a) => a.account_id === selected) : null;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h2 className="text-base font-semibold text-gray-800 mb-4">Suspicious Accounts</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+      <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Suspicious Accounts</h2>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-100">
+      <div className="overflow-x-auto rounded-lg border border-gray-100 dark:border-gray-700">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="bg-slate-800 text-slate-200 text-xs uppercase tracking-wider">
+            <tr className="bg-slate-800 dark:bg-slate-900 text-slate-200 text-xs uppercase tracking-wider">
               <th className="px-4 py-3 text-left font-semibold">Account ID</th>
               <th className="px-4 py-3 text-left font-semibold">Suspicion Score</th>
               <th className="px-4 py-3 text-left font-semibold">Detected Patterns</th>
@@ -58,25 +59,25 @@ const SuspiciousTable = ({ data, onHighlight }) => {
               <th className="px-4 py-3 text-left font-semibold">Details</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
             {accounts.map((acc) => {
               const { label, cls } = severityLabel(acc.suspicion_score);
               const isSelected = selected === acc.account_id;
               return (
                 <tr
                   key={acc.account_id}
-                  className={`${rowBg(acc.suspicion_score)} ${isSelected ? 'ring-2 ring-inset ring-blue-400' : ''} hover:brightness-95 transition-all`}
+                  className={`${rowBg(acc.suspicion_score)} ${isSelected ? 'ring-2 ring-inset ring-blue-400' : ''} hover:brightness-95 dark:hover:brightness-110 transition-all`}
                 >
-                  <td className="px-4 py-3 font-mono font-semibold text-gray-800">{acc.account_id}</td>
+                  <td className="px-4 py-3 font-mono font-semibold text-gray-800 dark:text-gray-100">{acc.account_id}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                      <div className="w-20 bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
                         <div
                           className="h-1.5 rounded-full bg-gradient-to-r from-yellow-400 to-red-500"
                           style={{ width: `${acc.suspicion_score}%` }}
                         />
                       </div>
-                      <span className="font-semibold text-gray-700">{acc.suspicion_score}</span>
+                      <span className="font-semibold text-gray-700 dark:text-gray-200">{acc.suspicion_score}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -87,7 +88,7 @@ const SuspiciousTable = ({ data, onHighlight }) => {
                           <span
                             key={p}
                             title={tip}
-                            className="px-2 py-0.5 rounded-full text-xs bg-indigo-100 text-indigo-700 font-medium cursor-help"
+                            className="px-2 py-0.5 rounded-full text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-medium cursor-help"
                           >
                             {p}
                           </span>
@@ -95,8 +96,8 @@ const SuspiciousTable = ({ data, onHighlight }) => {
                       })}
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-mono text-purple-700 text-xs">
-                    {acc.ring_id || <span className="text-gray-400">—</span>}
+                  <td className="px-4 py-3 font-mono text-purple-700 dark:text-purple-400 text-xs">
+                    {acc.ring_id || <span className="text-gray-400 dark:text-gray-500">—</span>}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${cls}`}>{label}</span>
@@ -105,7 +106,7 @@ const SuspiciousTable = ({ data, onHighlight }) => {
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => setSelected(isSelected ? null : acc.account_id)}
-                        className="text-blue-600 hover:text-blue-800 text-xs font-medium underline"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs font-medium underline"
                       >
                         {isSelected ? 'Hide' : 'Why Flagged?'}
                       </button>
@@ -133,21 +134,21 @@ const SuspiciousTable = ({ data, onHighlight }) => {
 
       {/* Why Flagged? Panel */}
       {selectedAccount && (
-        <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+        <div className="mt-4 p-4 bg-slate-50 dark:bg-gray-700/50 border border-slate-200 dark:border-gray-600 rounded-xl">
           <div className="flex items-center gap-2 mb-3">
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h3 className="font-semibold text-gray-800 text-sm">
-              Why was <span className="font-mono text-blue-700">{selectedAccount.account_id}</span> flagged?
+            <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+              Why was <span className="font-mono text-blue-700 dark:text-blue-400">{selectedAccount.account_id}</span> flagged?
             </h3>
           </div>
-          <ul className="space-y-2 text-sm text-gray-700">
+          <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             {selectedAccount.detected_patterns.map((p) => (
               <li key={p} className="flex items-start gap-2">
                 <span className="mt-0.5 text-red-500 font-bold">•</span>
                 <span>
-                  <span className="font-mono text-indigo-700 font-semibold">{p}</span>
+                  <span className="font-mono text-indigo-700 dark:text-indigo-400 font-semibold">{p}</span>
                   {' — '}
                   {p.startsWith('cycle_') ? cycleExplanation(p) : patternExplanations[p] || 'Suspicious behaviour detected.'}
                 </span>
@@ -158,7 +159,7 @@ const SuspiciousTable = ({ data, onHighlight }) => {
                 <span className="mt-0.5 text-purple-500 font-bold">•</span>
                 <span>
                   <span className="font-semibold">Network Behaviour:</span> Member of fraud ring{' '}
-                  <span className="font-mono text-purple-700">{selectedAccount.ring_id}</span>.
+                  <span className="font-mono text-purple-700 dark:text-purple-400">{selectedAccount.ring_id}</span>.
                 </span>
               </li>
             )}

@@ -214,10 +214,10 @@ const Graph = ({ data, highlightedIds }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-semibold text-gray-800">Fraud Network Graph</h2>
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">Fraud Network Graph</h2>
+        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
             Normal
@@ -235,12 +235,12 @@ const Graph = ({ data, highlightedIds }) => {
       {data && data.graph_edges && data.graph_edges.length > 0 ? (
         <div
           ref={containerRef}
-          className="border border-gray-100 rounded-xl bg-slate-50"
+          className="border border-gray-100 dark:border-gray-600 rounded-xl bg-slate-50 dark:bg-gray-700/50"
           style={{ width: '100%', height: '460px' }}
         />
       ) : (
         <div
-          className="border border-gray-100 rounded-xl bg-slate-50 flex items-center justify-center text-gray-400 text-sm"
+          className="border border-gray-100 dark:border-gray-600 rounded-xl bg-slate-50 dark:bg-gray-700/50 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm"
           style={{ height: '460px' }}
         >
           Upload a CSV file to visualise the transaction network

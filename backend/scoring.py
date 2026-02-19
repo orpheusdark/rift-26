@@ -7,11 +7,22 @@ _VOLUME_SCALE = 10000.0    # normalise transaction volume contribution
 _MAX_VOLUME_RISK = 45.0    # cap on volume-based risk contribution
 
 # Suspicion score boosts per detected pattern (each capped at 100 total)
-_BOOST_CYCLE = 30.0
-_BOOST_SMURFING = 20.0
+# Cycle boost varies by cycle length: longer cycles are harder to trace and more suspicious.
+_BOOST_CYCLE_BASE = 20.0       # base boost for any cycle membership
+_BOOST_CYCLE_PER_HOP = 4.0     # additional boost per hop in the cycle
+_MAX_CYCLE_BOOST = 50.0        # cap on cycle boost (hit at length 8+)
+
+_BOOST_FAN_IN = 25.0           # aggregator account (many senders → one)
+_BOOST_FAN_OUT = 20.0          # disperser account (one → many receivers)
 _BOOST_SHELL = 15.0
 _BOOST_VELOCITY = 25.0
 _BOOST_ANOMALY = 10.0
+
+# PageRank contribution: scale raw PageRank value to a 0–20 point boost.
+# Accounts with higher network centrality are more suspicious.
+_PAGERANK_SCALE = 500.0
+_MAX_PAGERANK_BOOST = 20.0
+
 
 def generate_scores(
     cycles,
@@ -22,9 +33,18 @@ def generate_scores(
     pagerank,
     flow_metrics
 ):
+    """Generate suspicion scores and fraud ring summaries.
+
+    Args:
+        smurfing: dict with keys 'fan_in' (list of aggregator accounts) and
+                  'fan_out' (list of disperser accounts).
+    """
     suspicious_map = {}
     fraud_rings = []
     account_to_ring = {}
+
+    fan_in_accounts = set(smurfing.get("fan_in", []))
+    fan_out_accounts = set(smurfing.get("fan_out", []))
 
     # Build fraud rings from cycles and track ring membership
     ring_counter = 1
@@ -61,23 +81,34 @@ def generate_scores(
             }
         return suspicious_map[acc]
 
-    # Accounts in cycles
+    # Accounts in cycles — boost varies by cycle length
     for ring in fraud_rings:
-        pattern = f"cycle_length_{len(ring['member_accounts'])}"
+        length = len(ring["member_accounts"])
+        pattern = f"cycle_length_{length}"
+        cycle_boost = min(_MAX_CYCLE_BOOST, _BOOST_CYCLE_BASE + length * _BOOST_CYCLE_PER_HOP)
         for acc in ring["member_accounts"]:
             entry = get_or_create(acc)
             if pattern not in entry["detected_patterns"]:
                 entry["detected_patterns"].append(pattern)
-            entry["suspicion_score"] = min(100.0, entry["suspicion_score"] + _BOOST_CYCLE)
+            entry["suspicion_score"] = min(100.0, entry["suspicion_score"] + cycle_boost)
 
-    # Smurfing / fan-out signal
-    for acc in smurfing:
+    # Fan-in (aggregator) smurfing
+    for acc in fan_in_accounts:
         if acc not in flow_metrics:
             continue
         entry = get_or_create(acc)
-        if "smurfing" not in entry["detected_patterns"]:
-            entry["detected_patterns"].append("smurfing")
-        entry["suspicion_score"] = min(100.0, entry["suspicion_score"] + _BOOST_SMURFING)
+        if "fan_in" not in entry["detected_patterns"]:
+            entry["detected_patterns"].append("fan_in")
+        entry["suspicion_score"] = min(100.0, entry["suspicion_score"] + _BOOST_FAN_IN)
+
+    # Fan-out (disperser) smurfing
+    for acc in fan_out_accounts:
+        if acc not in flow_metrics:
+            continue
+        entry = get_or_create(acc)
+        if "fan_out" not in entry["detected_patterns"]:
+            entry["detected_patterns"].append("fan_out")
+        entry["suspicion_score"] = min(100.0, entry["suspicion_score"] + _BOOST_FAN_OUT)
 
     # Shell accounts
     for acc in shells:
@@ -105,6 +136,15 @@ def generate_scores(
         if "amount_anomaly" not in entry["detected_patterns"]:
             entry["detected_patterns"].append("amount_anomaly")
         entry["suspicion_score"] = min(100.0, entry["suspicion_score"] + _BOOST_ANOMALY)
+
+    # PageRank-based boost: accounts more central in the transaction network
+    # have higher influence and are more suspicious. This differentiates scores
+    # among accounts with the same raw pattern boosts.
+    if pagerank:
+        for acc, entry in suspicious_map.items():
+            pr = pagerank.get(acc, 0.0)
+            pr_boost = min(_MAX_PAGERANK_BOOST, pr * _PAGERANK_SCALE)
+            entry["suspicion_score"] = min(100.0, entry["suspicion_score"] + pr_boost)
 
     suspicious_accounts = list(suspicious_map.values())
     # Round suspicion_score and sort descending
