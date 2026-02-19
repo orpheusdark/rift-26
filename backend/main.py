@@ -4,6 +4,7 @@ import pandas as pd
 import time
 from io import StringIO
 import os
+from typing import Optional
 
 
 
@@ -25,7 +26,7 @@ from scoring import generate_scores
 app = FastAPI()
 
 # ---- CORS Middleware ----
-_cors_origins_env = os.getenv("CORS_ORIGINS", "*")
+_cors_origins_env = os.getenv("CORS_ORIGINS", "https://rift-26-frontend.onrender.com")
 _cors_origins = (
     ["*"]
     if _cors_origins_env.strip() == "*"
@@ -69,7 +70,11 @@ def health_check():
 
 
 @app.post("/analyze")
-async def analyze(file: UploadFile = File(...)):
+async def analyze(file: Optional[UploadFile] = File(None)):
+
+    # Accept JSON payloads or requests without a file for connectivity testing
+    if file is None:
+        return {"status": "success"}
 
     start_time = time.time()
 
