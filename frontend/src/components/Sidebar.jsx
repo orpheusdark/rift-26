@@ -58,46 +58,88 @@ const navItems = [
 ];
 
 const Sidebar = ({ activeSection, onNavigate }) => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleNavigate = (id) => {
+    onNavigate(id);
+    setMobileOpen(false);
+  };
+
   return (
-    <aside className="w-56 bg-slate-900 min-h-screen flex flex-col shadow-xl flex-shrink-0">
-      {/* Brand */}
-      <div className="px-5 py-5 border-b border-slate-700">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg flex items-center justify-center shadow">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+    <>
+      {/* Mobile hamburger button */}
+      <button
+        className="md:hidden fixed top-3 left-3 z-50 w-9 h-9 bg-slate-900 text-white rounded-lg flex items-center justify-center shadow-lg"
+        onClick={() => setMobileOpen((prev) => !prev)}
+        aria-label="Toggle navigation"
+      >
+        {mobileOpen ? (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        )}
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed md:static inset-y-0 left-0 z-40
+          w-56 bg-slate-900 min-h-screen flex flex-col shadow-xl flex-shrink-0
+          transform transition-transform duration-200 ease-in-out
+          ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+      >
+        {/* Brand */}
+        <div className="px-5 py-5 border-b border-slate-700">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg flex items-center justify-center shadow">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <span className="text-white font-bold text-lg tracking-wide">FlowLock</span>
           </div>
-          <span className="text-white font-bold text-lg tracking-wide">FlowLock</span>
+          <p className="text-slate-400 text-xs mt-1 ml-10">by DeadLock</p>
         </div>
-        <p className="text-slate-400 text-xs mt-1 ml-10">by DeadLock</p>
-      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onNavigate(item.id)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-              activeSection === item.id
-                ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md'
-                : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
-            }`}
-          >
-            {item.icon}
-            {item.label}
-          </button>
-        ))}
-      </nav>
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavigate(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                activeSection === item.id
+                  ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+              }`}
+            >
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+        </nav>
 
-      {/* Team info */}
-      <div className="px-4 py-4 border-t border-slate-700 text-xs text-slate-500">
-        <p className="font-semibold text-slate-400">Team DeadLock</p>
-        <p>Lead: Nirant Chavda</p>
-        <p>Dev: Rhythm Chavda</p>
-      </div>
-    </aside>
+        {/* Team info */}
+        <div className="px-4 py-4 border-t border-slate-700 text-xs text-slate-500">
+          <p className="font-semibold text-slate-400">Team DeadLock</p>
+          <p>Lead: Nirant Chavda</p>
+          <p>Dev: Rhythm Chavda</p>
+        </div>
+      </aside>
+    </>
   );
 };
 

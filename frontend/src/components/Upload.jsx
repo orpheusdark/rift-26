@@ -44,7 +44,7 @@ const Upload = ({ onDataReceived }) => {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://34.229.10.113:8000/analyze';
+      const backendUrl = (import.meta.env.VITE_BACKEND_URL || 'http://3.87.82.38:8000').replace(/\/+$/, '');
       const response = await axios.post(`${backendUrl}/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 120000,
@@ -60,6 +60,8 @@ const Upload = ({ onDataReceived }) => {
       let msg;
       if (err.code === 'ECONNABORTED') {
         msg = 'Request timed out — the backend may be starting up. Please try again in a moment.';
+      } else if (!err.response) {
+        msg = 'Network error — unable to reach the backend. This may be a CORS or connectivity issue. Please check that the backend is running and accessible.';
       } else {
         msg = err.response?.data?.detail || 'Error analysing file. Please try again.';
       }
