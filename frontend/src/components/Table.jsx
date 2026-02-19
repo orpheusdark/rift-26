@@ -29,8 +29,9 @@ const Table = ({ data }) => {
     
     switch (sortBy) {
       case 'risk_score':
-        aVal = a.risk_score;
-        bVal = b.risk_score;
+        // Handle risk_score as object or number
+        aVal = typeof a.risk_score === 'object' ? a.risk_score.transaction_count : a.risk_score;
+        bVal = typeof b.risk_score === 'object' ? b.risk_score.transaction_count : b.risk_score;
         break;
       case 'ring_id':
         aVal = a.ring_id;
@@ -149,9 +150,16 @@ const Table = ({ data }) => {
                   {ring.member_accounts.length}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <span className={`font-semibold ${ring.risk_score > 70 ? 'text-red-600' : ring.risk_score > 40 ? 'text-yellow-600' : 'text-green-600'}`}>
-                    {ring.risk_score.toFixed(2)}
-                  </span>
+                  {typeof ring.risk_score === 'object' ? (
+                    <div className="text-xs">
+                      <div>Txns: {ring.risk_score.transaction_count}</div>
+                      <div>Vol: ${ring.risk_score.incoming_total.toFixed(0)}</div>
+                    </div>
+                  ) : (
+                    <span className={`font-semibold ${ring.risk_score > 70 ? 'text-red-600' : ring.risk_score > 40 ? 'text-yellow-600' : 'text-green-600'}`}>
+                      {ring.risk_score.toFixed(2)}
+                    </span>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">
                   <div className="max-w-xs overflow-x-auto">

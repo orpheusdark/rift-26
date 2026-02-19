@@ -163,17 +163,23 @@ const Graph = ({ data }) => {
       });
     });
 
-    // Detect and highlight cycles
+    // Detect and highlight cycles with a yellow glow effect
     const cycles = detectCycles(cy);
+    const cycleNodes = new Set();
     cycles.forEach(cycle => {
-      cycle.forEach(nodeId => {
-        const node = cy.getElementById(nodeId);
+      cycle.forEach(nodeId => cycleNodes.add(nodeId));
+    });
+    
+    cycleNodes.forEach(nodeId => {
+      const node = cy.getElementById(nodeId);
+      if (node.length > 0 && !node.data('suspicious')) {
+        // Only apply yellow border if not suspicious (suspicious nodes stay red)
         node.style({
-          'box-shadow': '0 0 20px #fbbf24',
-          'border-width': '3px',
-          'border-color': '#fbbf24'
+          'border-width': '4px',
+          'border-color': '#fbbf24',
+          'border-style': 'double'
         });
-      });
+      }
     });
 
     cyRef.current = cy;
