@@ -25,15 +25,19 @@ from scoring import generate_scores
 app = FastAPI()
 
 # ---- CORS Middleware ----
-_cors_origins = [
-    origin.strip()
-    for origin in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
-]
+_cors_origins_env = os.getenv("CORS_ORIGINS", "*")
+_cors_origins = (
+    ["*"]
+    if _cors_origins_env.strip() == "*"
+    else [origin.strip() for origin in _cors_origins_env.split(",")]
+)
+# allow_credentials=True is incompatible with allow_origins=["*"] per the CORS spec
+_allow_credentials = _cors_origins != ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    allow_credentials=True,
+    allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

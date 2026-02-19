@@ -163,7 +163,7 @@ function App() {
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-20">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-20 pl-14 md:pl-6">
           <div>
             <h1 className="text-base font-bold text-gray-900 dark:text-gray-100 leading-tight">
               Financial Forensics Dashboard
