@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import time
 from io import StringIO
+import os
 
 
 
@@ -24,9 +25,14 @@ from scoring import generate_scores
 app = FastAPI()
 
 # ---- CORS Middleware ----
+_cors_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins; in production, restrict to frontend URL
+    allow_origins=_cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
