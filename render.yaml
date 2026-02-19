@@ -3,6 +3,7 @@ services:
   - type: web
     name: rift-26-backend
     runtime: python
+    pythonVersion: "3.11"
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
