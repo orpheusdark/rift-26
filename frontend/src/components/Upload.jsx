@@ -44,7 +44,7 @@ const Upload = ({ onDataReceived }) => {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const backendUrl = (import.meta.env.VITE_BACKEND_URL || 'http://3.87.82.38:8000').replace(/\/+$/, '');
+      const backendUrl = import.meta.env.VITE_BACKEND_URL.replace(/\/+$/, '');
       const response = await axios.post(`${backendUrl}/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 120000,
