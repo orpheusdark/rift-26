@@ -18,7 +18,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_BACKEND_URL
-        value: https://rift-26-backend.onrender.com
+        value: http://3.87.82.38:8000
     routes:
       - type: rewrite
         source: /*
