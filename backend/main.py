@@ -36,8 +36,8 @@ _allow_credentials = _cors_origins != ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_cors_origins,
-    allow_credentials=_allow_credentials,
+    allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -146,3 +146,4 @@ async def analyze(file: UploadFile = File(...)):
 
         }
     }
+
