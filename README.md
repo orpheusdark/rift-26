@@ -170,7 +170,7 @@ Or download the ZIP file and extract it.
 
 ---
 
-## 🐍 Create Virtual Environment (Recommended)
+## 🐍 Create Virtual Environment
 
 ```bash
 python -m venv venv
@@ -219,9 +219,7 @@ The system will:
 
 ---
 
-## 📁 Output
-
-Results will be saved in the `/output/` folder and include:
+## [📁Output](output/Output_README.md)
 
 * Suspicious accounts report (CSV)
 * Risk score summary
@@ -229,20 +227,6 @@ Results will be saved in the `/output/` folder and include:
 
 ---
 
-
-
-##  Output Location
-
-Results will be saved in:
-
-/output/  
-
-Includes:
-- Suspicious accounts report (CSV)  
-- Risk score summary  
-- Transaction graph visualization  
-
----
 # Usage Instructions
 - Start backend server
 - Start frontend server
@@ -268,4 +252,4 @@ Includes:
 - Rhythm  Chavda
 
 
-© 2026 RIFT PUNE
+© 2026 RIFT PUNE DEADLOCK
